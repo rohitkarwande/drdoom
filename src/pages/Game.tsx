@@ -46,10 +46,15 @@ export const Game: React.FC = () => {
     <div className="min-h-screen p-4 md:p-8 flex flex-col bg-obsidian max-w-[1280px] mx-auto relative">
       {/* Manual Overlay */}
       {showManual && (
-        <div className="absolute inset-4 md:inset-8 z-50 flex flex-col bg-obsidian border-2 border-emerald shadow-[0_0_50px_rgba(16,185,129,0.2)]">
+        <div className="absolute inset-4 md:inset-8 z-[100] flex flex-col bg-obsidian border-2 border-emerald shadow-[0_0_50px_rgba(16,185,129,0.2)]">
           <div className="flex justify-between items-center p-4 border-b border-emerald bg-emerald/10">
             <h2 className="text-xl font-display text-emerald tracking-widest uppercase">Emergency Manual Overlay</h2>
-            <Button variant="ghost" size="sm" onClick={() => setShowManual(false)}>Close (TAB)</Button>
+            <div className="flex items-center gap-4">
+              <div className="transform scale-75 origin-right">
+                <Timer />
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setShowManual(false)}>Close (TAB)</Button>
+            </div>
           </div>
           <div className="flex-1 overflow-hidden">
             <ManualContent />

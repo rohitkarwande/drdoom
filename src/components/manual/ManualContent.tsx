@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useGameStore } from '../../game/store';
+import { Button } from '../ui/Button';
 import { cn } from '../../utils/cn';
 
 const sections = [
@@ -11,9 +13,21 @@ const sections = [
   { id: 'memory', title: '07 - MEMORY CORE' },
   { id: 'master', title: '08 - MASTER SHUTDOWN' },
 ];
+let lastActiveSection = 'basic';
 
 export const ManualContent: React.FC = () => {
-  const [activeSection, setActiveSection] = useState('basic');
+  const [activeSection, setActiveSection] = useState(lastActiveSection);
+  const [showPopup, setShowPopup] = useState(false);
+  const { startTime, startTimer } = useGameStore();
+
+  useEffect(() => {
+    lastActiveSection = activeSection;
+  }, [activeSection]);
+
+  const handleStartTimer = () => {
+    startTimer();
+    setShowPopup(true);
+  };
 
   return (
     <div className="flex flex-col md:flex-row h-full w-full bg-obsidian text-gray-300 font-sans border-2 border-gunmetal rounded-sm shadow-2xl overflow-hidden">
@@ -83,6 +97,14 @@ export const ManualContent: React.FC = () => {
                 <span className="text-crimson font-bold">STRIKE 3</span>: SYSTEM FAILURE. Immediate defusal failure.
               </div>
             </div>
+            
+            {!startTime && !showPopup && (
+              <div className="mt-8 flex justify-center border-t border-gunmetal pt-6">
+                <Button size="lg" onClick={handleStartTimer} className="animate-pulse bg-emerald text-obsidian hover:bg-emerald/90">
+                  START DEFUSAL TIMER
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
@@ -145,6 +167,8 @@ export const ManualContent: React.FC = () => {
               <li><strong>RULE D:</strong> Select the three numbers in the center row from left to right.</li>
               <li><strong>RULE E:</strong> Select the four corner numbers in clockwise order starting from top-left.</li>
             </ul>
+            
+            <p className="text-amber font-mono mt-4 italic">Hint: The rule is maybe in the game itself, like this something riddle.</p>
           </div>
         )}
 
@@ -218,6 +242,20 @@ export const ManualContent: React.FC = () => {
           </div>
         )}
       </div>
+
+      {showPopup && (
+        <div className="absolute inset-0 z-[200] bg-obsidian/90 flex flex-col items-center justify-center p-8 text-center backdrop-blur-sm animate-in fade-in duration-300">
+          <h1 className="text-4xl md:text-6xl font-display text-emerald uppercase animate-pulse drop-shadow-[0_0_20px_rgba(16,185,129,0.5)] mb-8">
+            Your bomb defusal timer has started!
+          </h1>
+          <p className="text-xl font-mono text-gray-300 mb-12 max-w-2xl">
+            Good luck, operative. The clock is ticking. You can now close this manual or continue reading.
+          </p>
+          <Button size="lg" onClick={() => setShowPopup(false)} className="bg-gunmetal border-2 border-emerald text-emerald hover:bg-emerald hover:text-obsidian">
+            UNDERSTOOD
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

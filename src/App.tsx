@@ -4,6 +4,7 @@ import { HowToPlay } from './pages/HowToPlay';
 import { Manual } from './pages/Manual';
 import { Game } from './pages/Game';
 import { Results } from './pages/Results';
+import { Dashboard } from './pages/Dashboard';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/manual" element={<Manual />} />
         <Route path="/game" element={<Game />} />
         <Route path="/results" element={<Results />} />
+        <Route path="/doom" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );

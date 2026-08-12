@@ -45,6 +45,7 @@ export interface GameState {
   useHint: () => void;
   resetGame: () => void;
   setModuleStatus: (module: 'wire'|'logic'|'symbol'|'memory', status: ModuleStatus) => void;
+  startTimer: () => void;
 }
 
 const generateSerialNumber = () => {
@@ -84,7 +85,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   startGame: () => {
     set({
       status: 'playing',
-      startTime: Date.now(),
+      startTime: null,
       remainingTime: 600,
       serialNumber: generateSerialNumber(),
       indicators: {
@@ -104,6 +105,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
   
   endGame: (win) => set({ status: win ? 'won' : 'lost' }),
+  
+  startTimer: () => set({ startTime: Date.now() }),
   
   tickTimer: () => {
     const { status, startTime, duration } = get();

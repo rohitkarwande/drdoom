@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../game/store';
 import { Button } from '../components/ui/Button';
+import { io } from 'socket.io-client';
 
 export const Results: React.FC = () => {
   const navigate = useNavigate();
   const { status, remainingTime, strikes, hintsUsed, resetGame } = useGameStore();
+  const [playerName, setPlayerName] = useState('');
+  const [isSaved, setIsSaved] = useState(false);
 
   const isWin = status === 'won';
   
@@ -26,6 +29,22 @@ export const Results: React.FC = () => {
   const handleReplay = () => {
     resetGame();
     navigate('/game');
+  };
+
+  const handleSaveScore = () => {
+    if (!playerName.trim() || isSaved) return;
+    
+    const socket = io(`http://${window.location.hostname}:3001`);
+    socket.emit('saveScore', {
+      name: playerName.trim(),
+      finalScore,
+      remainingTime,
+      strikes,
+      isWin
+    });
+    
+    setIsSaved(true);
+    setTimeout(() => socket.disconnect(), 1000);
   };
 
   const handleMenu = () => {
@@ -91,6 +110,25 @@ export const Results: React.FC = () => {
             <span className="text-3xl text-white">{finalScore}</span>
           </div>
         </div>
+
+        {!isSaved ? (
+          <div className="mt-8 flex flex-col gap-3">
+            <input 
+              type="text" 
+              placeholder="ENTER TEAM / PLAYER NAME"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.target.value)}
+              className="w-full bg-[#111318] border border-gray-700 text-center font-mono text-lg py-2 outline-none focus:border-emerald text-white uppercase"
+            />
+            <Button size="lg" onClick={handleSaveScore} disabled={!playerName.trim()} className="w-full bg-emerald text-obsidian font-bold">
+              SUBMIT TO DOOM'S LEDGER
+            </Button>
+          </div>
+        ) : (
+          <div className="mt-8 text-center text-emerald font-mono font-bold animate-pulse">
+            SCORE SUBMITTED TO DOOM'S LEDGER
+          </div>
+        )}
       </div>
 
       <div className="flex gap-4 z-10">
