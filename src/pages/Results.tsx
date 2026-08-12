@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../game/store';
 import { Button } from '../components/ui/Button';
-import { io } from 'socket.io-client';
 
 export const Results: React.FC = () => {
   const navigate = useNavigate();
@@ -31,20 +30,26 @@ export const Results: React.FC = () => {
     navigate('/game');
   };
 
-  const handleSaveScore = () => {
+  const handleSaveScore = async () => {
     if (!playerName.trim() || isSaved) return;
     
-    const socket = io(`http://${window.location.hostname}:3001`);
-    socket.emit('saveScore', {
-      name: playerName.trim(),
-      finalScore,
-      remainingTime,
-      strikes,
-      isWin
-    });
-    
     setIsSaved(true);
-    setTimeout(() => socket.disconnect(), 1000);
+    try {
+      await fetch('/api/saveScore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: playerName.trim(),
+          finalScore,
+          remainingTime,
+          strikes,
+          isWin
+        })
+      });
+    } catch (error) {
+      console.error('Failed to save score:', error);
+      setIsSaved(false);
+    }
   };
 
   const handleMenu = () => {

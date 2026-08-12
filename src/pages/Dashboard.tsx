@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { io } from 'socket.io-client';
 import { Button } from '../components/ui/Button';
 
 export const Dashboard: React.FC = () => {
@@ -7,22 +6,26 @@ export const Dashboard: React.FC = () => {
   const [connected, setConnected] = useState(false);
 
   useEffect(() => {
-    const socket = io(`http://${window.location.hostname}:3001`);
-    
-    socket.on('connect', () => {
-      setConnected(true);
-    });
+    const fetchLeaderboard = async () => {
+      try {
+        const response = await fetch('/api/leaderboard');
+        if (response.ok) {
+          const data = await response.json();
+          setLeaderboard(data);
+          setConnected(true);
+        } else {
+          setConnected(false);
+        }
+      } catch (error) {
+        setConnected(false);
+      }
+    };
 
-    socket.on('disconnect', () => {
-      setConnected(false);
-    });
-
-    socket.on('leaderboardUpdate', (data) => {
-      setLeaderboard(data);
-    });
+    fetchLeaderboard();
+    const interval = setInterval(fetchLeaderboard, 5000);
 
     return () => {
-      socket.disconnect();
+      clearInterval(interval);
     };
   }, []);
 
