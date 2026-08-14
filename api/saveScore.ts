@@ -1,10 +1,13 @@
-import { kv } from '@vercel/kv';
+import Redis from 'ioredis';
+
+const redis = new Redis(process.env.REDIS_URL || '');
 
 export default async function handler(req: any, res: any) {
   if (req.method === 'POST') {
     try {
       const scoreData = req.body;
-      let currentBoard: any = await kv.get('leaderboard');
+      const data = await redis.get('leaderboard');
+      let currentBoard: any = data ? JSON.parse(data) : [];
       
       if (!Array.isArray(currentBoard)) {
         currentBoard = [];
@@ -23,7 +26,7 @@ export default async function handler(req: any, res: any) {
         return a.strikes - b.strikes;
       });
       
-      await kv.set('leaderboard', currentBoard);
+      await redis.set('leaderboard', JSON.stringify(currentBoard));
       
       return res.status(200).json({ success: true, leaderboard: currentBoard });
     } catch (error) {
